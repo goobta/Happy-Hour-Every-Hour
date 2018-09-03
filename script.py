@@ -11,34 +11,19 @@ def lambda_handler(event, context):
 
 
 def get_location_for_time(time):
-    wpi_lat = 42.2746
-    wpi_long = 71.8063
+    pm_lat = 51.4777
+    pm_lon = 0.0004
 
-    current_date = datetime.datetime.now()
-
-    if is_hour_forward(current_date):
-        delta = -4
-    else:
-        delta = -5
-
-    days_delta = datetime.date(current_date.year, 1, 1) - current_date.date()
-    days_delta = abs(days_delta.days)
-
-    B = radians((days_delta - 81) * 360 / 365)
-    E = 9.87 * sin(2 * B) - 7.53 * cos(B) - 1.58 * sin(B)
-    time_correction = 4 * (delta * 15 + wpi_lat) + E
-
-    adjusted_time = current_date + datetime.timedelta(minutes=time_correction)
-    difference = time - adjusted_time
-
-    print(adjusted_time)
-    print(difference)
+    current_date = datetime.datetime.utcnow()
+    difference = time - current_date
 
     lon_change = (difference.days * 24 * 60 * 60 + difference.seconds) * \
             15 / 60 ** 2
     
+    print(difference.days)
+    print(difference.seconds)
     print(lon_change)
-    adjusted_lon = -wpi_long + lon_change
+    adjusted_lon = pm_lon + lon_change
     return adjusted_lon
 
 def is_hour_forward(t):

@@ -50,12 +50,11 @@ def get_location_for_time(time):
     pm_lon = 0.0004
 
     current_date = datetime.datetime.utcnow()
-    difference = time - current_date
+    difference = (time.hour - current_date.hour) * 60 + \
+            (time.minute - current_date.minute)
 
-    lon_change = (difference.days * 24 * 60 * 60 + difference.seconds) * \
-            15 / 60 ** 2
-    
-    adjusted_lon = pm_lon - lon_change
+    lon_change = difference * (15 / 60)
+    adjusted_lon = pm_lon + lon_change
 
     base = "http://maps.googleapis.com/maps/api/geocode/json?"
     params = "latlng={lat},{lon}&sensor=false".format(
@@ -124,6 +123,6 @@ print(get_location_for_time(datetime.datetime(
     current_date.year,
     current_date.month,
     current_date.day,
-    18,
+    20,
     0,
     0)))

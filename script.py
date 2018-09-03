@@ -1,5 +1,5 @@
 import datetime
-from math import sin, cos, radians
+import requests
 import json
 
 def lambda_handler(event, context):
@@ -20,10 +20,20 @@ def get_location_for_time(time):
     lon_change = (difference.days * 24 * 60 * 60 + difference.seconds) * \
             15 / 60 ** 2
     
-    print(difference.days)
-    print(difference.seconds)
+    adjusted_lon = pm_lon - lon_change
+
+    base = "http://maps.googleapis.com/maps/api/geocode/json?"
+    params = "latlng={lat},{lon}&sensor=false".format(
+        lat=pm_lat,
+        lon=adjusted_lon
+    )
+    url = "{base}{params}".format(base=base, params=params)
+    response = requests.get(url)
+
+    print(response.text)
+    print(difference)
     print(lon_change)
-    adjusted_lon = pm_lon + lon_change
+
     return adjusted_lon
 
 def is_hour_forward(t):
@@ -38,11 +48,12 @@ def is_hour_forward(t):
         first_sunday = (7 - datetime.datetime(t.year, 11, 1).weekday()) % 7
         return t.day <= first_sunday
 
+
 current_date = datetime.datetime.now()
 print(get_location_for_time(datetime.datetime(
     current_date.year,
     current_date.month,
     current_date.day,
-    17,
+    18,
     0,
     0)))

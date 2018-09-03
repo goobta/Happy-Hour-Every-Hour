@@ -1,4 +1,5 @@
 import datetime
+from math import sin, cos, radians
 import json
 
 def lambda_handler(event, context):
@@ -11,13 +12,22 @@ def lambda_handler(event, context):
 
 def get_location_for_time(time):
     current_date = datetime.datetime.now()
-    dst_start = datetime.date(current_date.year, 3, 11)
-    dst_end = datetime.date(current_date.year, 11, 4)
 
-    if current_date.month >= 3 and current_date.month >= 11:
-        delta = 4
-    elif current_date.month:
-        pass
+    if is_hour_forward(current_date):
+        delta = -4
+    else:
+        delta = -5
+
+    days_delta = datetime.date(current_date.year, 1, 1) - current_date.date()
+    days_delta = abs(days_delta.days)
+
+    print (days_delta)
+    B = radians((days_delta - 81) * 360 / 365)
+    print("b ", B)
+    E = 9.87 * sin(2 * B) - 7.53 * cos(B) - 1.58 * sin(B)
+    print("e ", E)
+    time_correction = 4 * (delta * 15 + 71.8063) + E
+    return time_correction
 
 def is_hour_forward(t):
     if t.month < 3 or t.month > 11:
@@ -30,3 +40,5 @@ def is_hour_forward(t):
     elif t.month == 11:
         first_sunday = (7 - datetime.datetime(t.year, 11, 1).weekday()) % 7
         return t.day <= first_sunday
+
+print(get_location_for_time("val"))
